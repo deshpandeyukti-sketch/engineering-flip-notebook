@@ -1,0 +1,236 @@
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--surface);
+  border-right: 1px solid #e5e7eb;
+  height: calc(100vh - var(--header-height));
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  overflow-y: auto;
+  transition: transform 300ms ease-out;
+  z-index: 90;
+}
+
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar-section {
+  padding: 20px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sidebar-section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-btn {
+  width: 28px;
+  height: 28px;
+  background: var(--background);
+}
+
+.new-notebook-form {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--background);
+  border-radius: 8px;
+}
+
+.new-notebook-form input {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-actions button {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.notebook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notebook-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border-radius: 8px;
+  text-align: left;
+  transition: all 150ms ease;
+}
+
+.notebook-item:hover {
+  background: var(--background);
+}
+
+.notebook-item.active {
+  background: rgba(238, 108, 77, 0.1);
+}
+
+.notebook-item.active .notebook-title {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.notebook-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.notebook-title {
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.empty-state button {
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+.calendar {
+  width: 100%;
+  border: none;
+  font-family: var(--font-body);
+}
+
+.calendar .react-calendar__navigation {
+  margin-bottom: 8px;
+}
+
+.calendar .react-calendar__navigation button {
+  min-width: 32px;
+  padding: 4px;
+  background: transparent;
+  font-weight: 600;
+}
+
+.calendar .react-calendar__navigation button:hover {
+  background: var(--background);
+  transform: none;
+}
+
+.calendar .react-calendar__month-view__weekdays {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.calendar .react-calendar__tile {
+  padding: 6px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.calendar .react-calendar__tile:hover {
+  background: var(--background);
+}
+
+.calendar .react-calendar__tile--active {
+  background: var(--accent) !important;
+  color: white;
+}
+
+.calendar .react-calendar__tile.has-page::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  margin: 2px auto 0;
+}
+
+.calendar .react-calendar__tile.has-page.react-calendar__tile--active::after {
+  background: white;
+}
+
+.team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.team-member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.member-avatar.placeholder {
+  background: var(--secondary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.member-name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.online-indicator {
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    box-shadow: var(--shadow-lg);
+  }
+}
