@@ -1,0 +1,49 @@
+# Project Memory - Engineering Flip Notebook
+
+## GitHub Repository
+- URL: https://github.com/deshpandeyukti-sketch/engineering-flip-notebook
+- Default branch: main
+- Deployed branch: gh-pages
+
+## Deployment
+- Live URL: https://deshpandeyukti-sketch.github.io/engineering-flip-notebook/
+- GitHub Pages enabled on gh-pages branch
+- Built as single HTML file using vite-plugin-singlefile
+
+## Tech Stack
+- React + TypeScript
+- Vite (with vite-plugin-singlefile)
+- Firebase (for auth)
+- GitHub Pages deployment
+- KaTeX (for equations)
+- react-pageflip (for page flip animation)
+
+## Local Development
+```bash
+cd "/Users/yuktideshpande/Documents/Engineer notebook/engineering-flip-notebook"
+npm run dev    # Development server
+npm run build  # Production build
+npm run deploy # Build and deploy to GitHub Pages
+```
+
+## Features Implemented
+- Demo Mode: Local-only mode without Firebase (auto-enabled when no env vars)
+- Login page with Email/Password, Google OAuth, and Demo Mode
+- Flip notebook with realistic page-turn animation
+- Text editing on each page
+- Drawing canvas with color picker and brush sizes
+- Image upload support
+- LaTeX equation rendering with KaTeX
+- Page navigation (prev/next buttons)
+
+## Key Files
+- `src/contexts/AuthContext.tsx` - Authentication handling
+- `src/contexts/NotebookContext.tsx` - Notebook and page state management
+- `src/components/FlipNotebook.tsx` - Main flip notebook component
+- `src/components/PageContent.tsx` - Page content (text, drawing, images, equations)
+
+## Git Commands Used
+- Initialized git repo: git init
+- Created commit: git commit -m "Initial commit"
+- Pushed main branch: git push -u origin main
+- Pushed dist to gh-pages: git push -f -u origin gh-pages

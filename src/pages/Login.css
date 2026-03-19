@@ -112,6 +112,19 @@
   transform: none;
 }
 
+.demo-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: white;
+  font-weight: 500;
+}
+
+.demo-btn:hover {
+  opacity: 0.9;
+  transform: none;
+}
+
 .toggle-mode {
   text-align: center;
   font-size: 14px;

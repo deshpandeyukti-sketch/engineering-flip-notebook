@@ -109,8 +109,8 @@ export function FlipNotebook() {
             disableFlipByClick={false}
           >
             {pages.map((page) => (
-              <div key={page.id} className="notebook-page">
-                <div className="page-content">
+              <div key={page.id} className="notebook-page" onMouseDown={(e) => e.stopPropagation()}>
+                <div className="page-content" onMouseDown={(e) => e.stopPropagation()}>
                   <div className="page-header">
                     <span className="page-date">
                       {page.date.toLocaleDateString('en-US', { 

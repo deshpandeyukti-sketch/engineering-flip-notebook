@@ -11,17 +11,30 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../utils/firebase';
 import type { User } from '../types';
 
+const isDemoMode = !import.meta.env.VITE_FIREBASE_API_KEY || 
+  import.meta.env.VITE_FIREBASE_API_KEY === "YOUR_API_KEY" ||
+  import.meta.env.VITE_FIREBASE_API_KEY.includes("your_");
+
 interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
   loading: boolean;
+  demoMode: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInDemo: () => void;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const demoUser: User = {
+  id: 'demo-user',
+  email: 'demo@example.com',
+  displayName: 'Demo User',
+  createdAt: new Date()
+};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -29,6 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isDemoMode) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
       if (fbUser) {
@@ -56,10 +74,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    if (isDemoMode) {
+      throw new Error('Firebase not configured. Use Demo mode to test.');
+    }
     await signInWithEmailAndPassword(auth, email, password);
   };
 
   const signUp = async (email: string, password: string, displayName: string) => {
+    if (isDemoMode) {
+      throw new Error('Firebase not configured. Use Demo mode to test.');
+    }
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const newUser: User = {
       id: result.user.uid,
@@ -71,6 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
+    if (isDemoMode) {
+      throw new Error('Firebase not configured. Use Demo mode to test.');
+    }
     const result = await signInWithPopup(auth, googleProvider);
     const userDoc = await getDoc(doc(db, 'users', result.user.uid));
     if (!userDoc.exists()) {
@@ -85,12 +112,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInDemo = () => {
+    setUser(demoUser);
+  };
+
   const logout = async () => {
+    if (isDemoMode) {
+      setUser(null);
+      return;
+    }
     await signOut(auth);
   };
 
   return (
-    <AuthContext.Provider value={{ user, firebaseUser, loading, signIn, signUp, signInWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, firebaseUser, loading, demoMode: isDemoMode, signIn, signUp, signInWithGoogle, signInDemo, logout }}>
       {children}
     </AuthContext.Provider>
   );

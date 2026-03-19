@@ -4,6 +4,11 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  pointer-events: none;
+}
+
+.page-content-wrapper > * {
+  pointer-events: auto;
 }
 
 .text-editor {
@@ -18,6 +23,9 @@
   resize: none;
   outline: none;
   margin-bottom: 16px;
+  position: relative;
+  z-index: 100;
+  pointer-events: auto !important;
 }
 
 .text-editor::placeholder {
@@ -27,7 +35,9 @@
 
 .drawing-container {
   position: relative;
-  margin-top: auto;
+  margin-top: 16px;
+  pointer-events: auto;
+  z-index: 5;
 }
 
 .drawing-canvas {
@@ -35,6 +45,11 @@
   border-radius: 8px;
   cursor: crosshair;
   touch-action: none;
+  pointer-events: none;
+}
+
+.drawing-canvas.active {
+  pointer-events: auto;
 }
 
 .drawing-tools {

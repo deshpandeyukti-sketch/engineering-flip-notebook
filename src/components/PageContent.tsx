@@ -176,12 +176,22 @@ export function PageContent({ page }: PageContentProps) {
   };
 
   return (
-    <div className="page-content-wrapper">
+    <div 
+      className="page-content-wrapper" 
+      onClick={(e) => e.stopPropagation()} 
+      onMouseDown={(e) => {
+        if ((e.target as HTMLElement).tagName !== 'TEXTAREA') {
+          e.stopPropagation();
+        }
+      }}
+    >
       <textarea
         className="text-editor"
         placeholder="Start writing..."
         value={text}
         onChange={handleTextChange}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       />
 
       <div className="drawing-container">
@@ -189,7 +199,7 @@ export function PageContent({ page }: PageContentProps) {
           ref={canvasRef}
           width={340}
           height={360}
-          className="drawing-canvas"
+          className={`drawing-canvas ${isDrawing ? 'active' : ''}`}
           onMouseDown={startDrawing}
           onMouseMove={draw}
           onMouseUp={stopDrawing}

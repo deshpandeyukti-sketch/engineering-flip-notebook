@@ -1,18 +1,5 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  query, 
-  where, 
-  onSnapshot,
-  orderBy,
-  serverTimestamp
-} from 'firebase/firestore';
-import { db } from '../utils/firebase';
-import { useAuth } from './AuthContext';
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import type { Notebook, Page, PageContent } from '../types';
 
 interface NotebookContextType {
@@ -33,161 +20,83 @@ interface NotebookContextType {
 
 const NotebookContext = createContext<NotebookContextType | undefined>(undefined);
 
+const isDemoMode = !import.meta.env.VITE_FIREBASE_API_KEY || 
+  import.meta.env.VITE_FIREBASE_API_KEY === "YOUR_API_KEY" ||
+  import.meta.env.VITE_FIREBASE_API_KEY.includes("your_");
+
+const demoNotebook: Notebook = {
+  id: 'demo-notebook',
+  teamId: 'demo-team',
+  title: 'My Engineering Notebook',
+  coverColor: '#1E3A5F',
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 export function NotebookProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
-  const [notebooks, setNotebooks] = useState<Notebook[]>([]);
+  const [notebooks, setNotebooks] = useState<Notebook[]>(isDemoMode ? [demoNotebook] : []);
   const [pages, setPages] = useState<Page[]>([]);
-  const [currentNotebook, setCurrentNotebook] = useState<Notebook | null>(null);
+  const [currentNotebook, setCurrentNotebook] = useState<Notebook | null>(isDemoMode ? demoNotebook : null);
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user) {
-      setNotebooks([]);
-      setPages([]);
-      setLoading(false);
-      return;
-    }
-
-    const q = query(
-      collection(db, 'notebooks'),
-      where('teamId', '==', user.id),
-      orderBy('updatedAt', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notebookList: Notebook[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        notebookList.push({
-          id: doc.id,
-          teamId: data.teamId,
-          title: data.title,
-          coverColor: data.coverColor,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date()
-        });
-      });
-      setNotebooks(notebookList);
-      if (notebookList.length > 0 && !currentNotebook) {
-        setCurrentNotebook(notebookList[0]);
-      }
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, [user]);
-
-  useEffect(() => {
-    if (!currentNotebook) {
-      setPages([]);
-      return;
-    }
-
-    const q = query(
-      collection(db, 'pages'),
-      where('notebookId', '==', currentNotebook.id),
-      orderBy('date', 'asc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const pageList: Page[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        pageList.push({
-          id: doc.id,
-          notebookId: data.notebookId,
-          date: data.date?.toDate() || new Date(),
-          authorId: data.authorId,
-          authorName: data.authorName,
-          authorPhoto: data.authorPhoto,
-          content: data.content || { text: '', drawings: [], images: [], equations: [] },
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date()
-        });
-      });
-      setPages(pageList);
-      if (pageList.length > 0 && !currentPage) {
-        setCurrentPage(pageList[0]);
-      }
-    });
-
-    return unsubscribe;
-  }, [currentNotebook]);
+  const [loading] = useState(false);
 
   const createNotebook = async (title: string, coverColor: string): Promise<Notebook> => {
-    if (!user) throw new Error('Must be logged in');
-    
-    const docRef = await addDoc(collection(db, 'notebooks'), {
-      teamId: user.id,
-      title,
-      coverColor,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    
     const newNotebook: Notebook = {
-      id: docRef.id,
-      teamId: user.id,
+      id: isDemoMode ? 'demo-notebook' : uuidv4(),
+      teamId: 'demo-team',
       title,
       coverColor,
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
+
+    if (isDemoMode) {
+      setNotebooks([newNotebook]);
+    }
     return newNotebook;
   };
 
   const selectNotebook = (notebook: Notebook | null) => {
     setCurrentNotebook(notebook);
     setCurrentPage(null);
+    setPages([]);
   };
 
   const createPage = async (date?: Date): Promise<Page> => {
-    if (!user || !currentNotebook) throw new Error('Must be logged in with a notebook selected');
-    
+    const notebook = currentNotebook || demoNotebook;
     const pageDate = date || new Date();
     
-    const docRef = await addDoc(collection(db, 'pages'), {
-      notebookId: currentNotebook.id,
-      date: pageDate,
-      authorId: user.id,
-      authorName: user.displayName,
-      authorPhoto: user.photoURL,
-      content: { text: '', drawings: [], images: [], equations: [] },
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    
     const newPage: Page = {
-      id: docRef.id,
-      notebookId: currentNotebook.id,
+      id: uuidv4(),
+      notebookId: notebook.id,
       date: pageDate,
-      authorId: user.id,
-      authorName: user.displayName,
-      authorPhoto: user.photoURL,
+      authorId: 'demo-user',
+      authorName: 'Demo User',
       content: { text: '', drawings: [], images: [], equations: [] },
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
+
+    setPages(prev => [...prev, newPage]);
     setCurrentPage(newPage);
     return newPage;
   };
 
   const updatePage = async (pageId: string, content: Partial<PageContent>) => {
-    const pageRef = doc(db, 'pages', pageId);
-    const page = pages.find(p => p.id === pageId);
-    if (!page) return;
-
-    await updateDoc(pageRef, {
-      content: { ...page.content, ...content },
-      updatedAt: serverTimestamp()
-    });
+    setPages(prev => prev.map(page => {
+      if (page.id === pageId) {
+        return {
+          ...page,
+          content: { ...page.content, ...content },
+          updatedAt: new Date()
+        };
+      }
+      return page;
+    }));
   };
 
-  const deletePage = async (pageId: string) => {
-    await deleteDoc(doc(db, 'pages', pageId));
+  const deletePage = (pageId: string) => {
+    setPages(prev => prev.filter(page => page.id !== pageId));
     if (currentPage?.id === pageId) {
       setCurrentPage(null);
     }
